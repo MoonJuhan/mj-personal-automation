@@ -87,35 +87,52 @@ function writeYearly(_code, _array, _month) {
 
 // -----------------------
 
-//월간 거래 내역 복사
-function monthlyCopy(_year, _month) {
-  // 다음년 오류 발생
+// 월간 거래 내역 복사
+const monthlyCopy = (_year, _month) => {
+  const mListPinCell = sheet_MonthlyList.createTextFinder("Finder01").findAll();
   var findSheet = String(_year).slice(2, 4) + "년 월간 거래";
   var findCode = _month + "월 거래";
   if (_month == 0) {
     findCode = "12월 거래";
   }
 
-  var pinCell = sheet_MonthlyList.createTextFinder("Finder01").findAll();
-  var pinRow = pinCell[0].getRow() + 2;
-  var pinColumn = pinCell[0].getColumn();
+  const range = getListRange(
+    sheet_MonthlyList,
+    mListPinCell[0].getRow() + 2,
+    mListPinCell[0].getColumn()
+  );
 
-  var range = sheet_MonthlyList.getRange(pinRow, pinColumn, 100, 12);
+  const sheet_YearlyList = GSS.getSheetByName(
+    String(_year).slice(2, 4) + "년 월간 거래"
+  );
 
-  console.log(findSheet);
-  var sheet_YearlyList = GSS.getSheetByName(findSheet);
-  pinCell = sheet_YearlyList.createTextFinder(findCode).findAll();
+  const yListPinCell = sheet_YearlyList
+    .createTextFinder(_month == 0 ? "12월 거래" : _month + "월 거래")
+    .findAll();
   pinRow = pinCell[0].getRow() + 4;
   pinColumn = pinCell[0].getColumn();
 
-  range.copyTo(sheet_YearlyList.getRange(pinRow, pinColumn, 100, 12));
+  range.copyTo(
+    getListRange(
+      sheet_YearlyList,
+      yListPinCell[0].getRow() + 4,
+      yListPinCell[0].getColumn()
+    )
+  );
 
   monthlyDelete(range);
-}
-//월간 거래 내역 삭제
-function monthlyDelete(_range) {
+};
+
+// Range 가져오기
+const getListRange = (sheet, row, col) => {
+  const lastRow = sheet_MonthlyList.getLastRow();
+  return sheet.getRange(row, col, lastRow, 12);
+};
+
+// 월간 거래 내역 삭제
+const monthlyDelete = (_range) => {
   _range.clear({ contentsOnly: true });
-}
+};
 
 // -----------------------
 
