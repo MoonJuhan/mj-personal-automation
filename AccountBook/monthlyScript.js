@@ -1,8 +1,14 @@
-//월간 잔고 설정
-function balanceUpdate() {
-  var pinCell = sheet_Monthly.createTextFinder("자산").findAll();
-  var pinRow = pinCell[0].getRow() + 3;
-  var pinColumn = pinCell[0].getColumn() + 3;
+const sheet_Monthly = GSS.getSheetByName("월간 요약");
+const sheet_MonthlyList = GSS.getSheetByName("월간 거래");
+const sheet_Yearly = GSS.getSheetByName("연간 요약");
+const sheet_Calendar = GSS.getSheetByName("일간 소비 기록");
+const sheet_MyAsset = GSS.getSheetByName("연간 자산 기록");
+
+// 월간 잔고 설정
+const balanceUpdate = () => {
+  const pinCell = sheet_Monthly.createTextFinder("자산").findAll();
+  const pinRow = pinCell[0].getRow() + 3;
+  const pinColumn = pinCell[0].getColumn() + 3;
 
   while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != "Finder 03") {
     sheet_Monthly
@@ -10,66 +16,60 @@ function balanceUpdate() {
       .setValue(sheet_Monthly.getRange(pinRow, pinColumn).getValue());
     pinRow++;
   }
-}
+};
 
 // -----------------------
 
 // 연간 거래 작성
-function yearlyUpdate(_month) {
+const yearlyUpdate = (_month) => {
   // 지출 찾기
-  var expenseArray = findMonthly("01");
+  const expenseArray = findMonthly("01");
 
   // 지출 작성
   writeYearly("01", expenseArray, _month);
 
   // 수입 찾기
-  var incomeArray = findMonthly("02");
+  const incomeArray = findMonthly("02");
 
-  console.log(incomeArray);
   // 수입 작성
   writeYearly("02", incomeArray, _month);
-}
+};
 
 // 월간 요약 찾기
-function findMonthly(_code) {
-  var findCode = "Finder" + _code;
-  var pinCell = sheet_Monthly.createTextFinder(findCode).findAll();
-  var pinRow = pinCell[0].getRow() + 1;
-  var pinColumn = pinCell[0].getColumn();
+const findMonthly = (_code) => {
+  const pinCell = sheet_Monthly.createTextFinder("Finder" + _code).findAll();
+  let pinRow = pinCell[0].getRow() + 1;
+  const pinColumn = pinCell[0].getColumn();
 
-  var returnArray = [];
+  const returnArray = [];
 
   while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != "") {
-    var Obj = {
+    returnArray.push({
       name: sheet_Monthly.getRange(pinRow, pinColumn).getValue(),
       num: sheet_Monthly.getRange(pinRow, pinColumn + 3).getValue(),
-    };
-
-    returnArray.push(Obj);
+    });
     pinRow++;
   }
 
   return returnArray;
-}
+};
 
 // 연간 요약 작성
-function writeYearly(_code, _array, _month) {
-  var month = _month;
+const writeYearly = (_code, _array, _month) => {
+  let month = _month;
   if (month == 0) {
     month = 12;
   }
-  var findCode = "Finder" + _code;
-  var endCode = "End" + _code;
-  var pinCell = sheet_Yearly.createTextFinder(findCode).findAll();
-  var pinRow = pinCell[0].getRow() + 1;
-  var pinColumn = pinCell[0].getColumn();
+  const pinCell = sheet_Yearly.createTextFinder("Finder" + _code).findAll();
+  let pinRow = pinCell[0].getRow() + 1;
+  const pinColumn = pinCell[0].getColumn();
 
-  while (sheet_Yearly.getRange(pinRow, pinColumn).getValue() != endCode) {
+  while (sheet_Yearly.getRange(pinRow, pinColumn).getValue() != "End" + _code) {
     if (
       sheet_Yearly.getRange(pinRow, pinColumn).getValue() != "" &&
       sheet_Yearly.getRange(pinRow, pinColumn).getValue() != "월간 합계:"
     ) {
-      for (var i in _array) {
+      for (let i in _array) {
         if (
           sheet_Yearly.getRange(pinRow, pinColumn).getValue() == _array[i].name
         ) {
@@ -83,18 +83,13 @@ function writeYearly(_code, _array, _month) {
     }
     pinRow++;
   }
-}
+};
 
 // -----------------------
 
 // 월간 거래 내역 복사
 const monthlyCopy = (_year, _month) => {
   const mListPinCell = sheet_MonthlyList.createTextFinder("Finder01").findAll();
-  var findSheet = String(_year).slice(2, 4) + "년 월간 거래";
-  var findCode = _month + "월 거래";
-  if (_month == 0) {
-    findCode = "12월 거래";
-  }
 
   const range = getListRange(
     sheet_MonthlyList,
@@ -109,8 +104,6 @@ const monthlyCopy = (_year, _month) => {
   const yListPinCell = sheet_YearlyList
     .createTextFinder(_month == 0 ? "12월 거래" : _month + "월 거래")
     .findAll();
-  pinRow = pinCell[0].getRow() + 4;
-  pinColumn = pinCell[0].getColumn();
 
   range.copyTo(
     getListRange(
@@ -137,7 +130,10 @@ const monthlyDelete = (_range) => {
 // -----------------------
 
 // 연간 자산 기록 함수
-function writeMyAsset(_year, _month) {
+const writeMyAsset = (_year, _month) => {
+  // 2021 05
+  console.log(_year, _month);
+
   let pinCell = sheet_Monthly.createTextFinder("자산").findAll();
   let pinRow = pinCell[0].getRow() + 3;
   const pinColumn = pinCell[0].getColumn() + 3;
@@ -179,7 +175,7 @@ function writeMyAsset(_year, _month) {
     num: accountList[3],
   });
 
-  let yearFinder = sheet_MyAsset
+  const yearFinder = sheet_MyAsset
     .createTextFinder(_year)
     .findAll()
     .filter(
@@ -193,6 +189,7 @@ function writeMyAsset(_year, _month) {
 
   let monthlyExpenseList = getMonthlyList("Finder01", _month);
   let monthlyIncomeList = getMonthlyList("Finder02", _month);
+  console.log(monthlyExpenseList);
 
   monthlyAssetList.forEach((el) => {
     writeNum(el, writePinRow);
@@ -204,13 +201,14 @@ function writeMyAsset(_year, _month) {
   monthlyIncomeList.forEach((el) => {
     writeNum(el, writePinRow);
   });
-}
+};
 
 const getMonthlyList = (type, _month) => {
   let textFinder = sheet_Yearly.createTextFinder(type).findAll()[0];
   let pinRow = textFinder.getRow();
   let returnList = [];
   const pinColumn = textFinder.getColumn();
+  console.log(type, pinRow, pinColumn);
 
   while (
     sheet_Yearly.getRange(pinRow, pinColumn).getValue() !=
@@ -232,6 +230,10 @@ const getMonthlyList = (type, _month) => {
 };
 
 const writeNum = (obj, row) => {
-  var col = sheet_MyAsset.createTextFinder(obj.name).findAll()[0].getColumn();
-  sheet_MyAsset.getRange(row, col).setValue(obj.num);
+  sheet_MyAsset
+    .getRange(
+      row,
+      sheet_MyAsset.createTextFinder(obj.name).findAll()[0].getColumn()
+    )
+    .setValue(obj.num);
 };
