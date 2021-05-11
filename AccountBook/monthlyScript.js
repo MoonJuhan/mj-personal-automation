@@ -191,8 +191,8 @@ function writeMyAsset(_year, _month) {
 
   const writePinRow = yearFinder[0].getRow();
 
-  let monthlyExpenseList = getMonthlyList("Finder01");
-  let monthlyIncomeList = getMonthlyList("Finder02");
+  let monthlyExpenseList = getMonthlyList("Finder01", _month);
+  let monthlyIncomeList = getMonthlyList("Finder02", _month);
 
   monthlyAssetList.forEach((el) => {
     writeNum(el, writePinRow);
@@ -206,7 +206,7 @@ function writeMyAsset(_year, _month) {
   });
 }
 
-const getMonthlyList = (type) => {
+const getMonthlyList = (type, _month) => {
   let textFinder = sheet_Yearly.createTextFinder(type).findAll()[0];
   let pinRow = textFinder.getRow();
   let returnList = [];
@@ -218,7 +218,8 @@ const getMonthlyList = (type) => {
   ) {
     if (sheet_Yearly.getRange(pinRow, pinColumn).getValue() == "월간 합계:") {
       const name = sheet_Yearly.getRange(pinRow, pinColumn - 1).getValue();
-      const num = sheet_Yearly.getRange(pinRow, pinColumn + 1).getValue();
+      const num = sheet_Yearly.getRange(pinRow, pinColumn + _month).getValue();
+
       returnList.push({
         name,
         num,
