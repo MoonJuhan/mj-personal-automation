@@ -23,4 +23,7 @@ Google Apps Script Developer
 [위키백과-구글 앱 스크립트](https://ko.wikipedia.org/wiki/%EA%B5%AC%EA%B8%80_%EC%95%B1_%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8)
 
 [Google Apps Script 공식 웹사이트](https://developers.google.com/apps-script)
+
+[Google Apps Script Reference](https://developers.google.com/apps-script/reference/spreadsheet)
+
 <!-- [license]:https://img.shields.io/badge/license-MIT-blue.svg -->
