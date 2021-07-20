@@ -18,6 +18,8 @@ const monthlyFunc = () => {
 
   // 월간 거래 내역 업데이트
   monthlyCopy(year, month);
+
+  console.log('Monthly Function is Over')
 };
 
 // 일간 실행 함수
