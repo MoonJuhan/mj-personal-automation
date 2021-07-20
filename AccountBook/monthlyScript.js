@@ -1,16 +1,16 @@
-const sheet_Monthly = GSS.getSheetByName("월간 요약");
-const sheet_MonthlyList = GSS.getSheetByName("월간 거래");
-const sheet_Yearly = GSS.getSheetByName("연간 요약");
-const sheet_Calendar = GSS.getSheetByName("일간 소비 기록");
-const sheet_MyAsset = GSS.getSheetByName("연간 자산 기록");
+const sheet_Monthly = GSS.getSheetByName('월간 요약');
+const sheet_MonthlyList = GSS.getSheetByName('월간 거래');
+const sheet_Yearly = GSS.getSheetByName('연간 요약');
+const sheet_Calendar = GSS.getSheetByName('일간 소비 기록');
+const sheet_MyAsset = GSS.getSheetByName('연간 자산 기록');
 
 // 월간 잔고 설정
 const balanceUpdate = () => {
-  const pinCell = sheet_Monthly.createTextFinder("자산").findAll();
+  const pinCell = sheet_Monthly.createTextFinder('자산').findAll();
   const pinRow = pinCell[0].getRow() + 3;
   const pinColumn = pinCell[0].getColumn() + 3;
 
-  while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != "Finder 03") {
+  while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != 'Finder 03') {
     sheet_Monthly
       .getRange(pinRow, pinColumn - 1)
       .setValue(sheet_Monthly.getRange(pinRow, pinColumn).getValue());
@@ -23,27 +23,27 @@ const balanceUpdate = () => {
 // 연간 거래 작성
 const yearlyUpdate = (_month) => {
   // 지출 찾기
-  const expenseArray = findMonthly("01");
+  const expenseArray = findMonthly('01');
 
   // 지출 작성
-  writeYearly("01", expenseArray, _month);
+  writeYearly('01', expenseArray, _month);
 
   // 수입 찾기
-  const incomeArray = findMonthly("02");
+  const incomeArray = findMonthly('02');
 
   // 수입 작성
-  writeYearly("02", incomeArray, _month);
+  writeYearly('02', incomeArray, _month);
 };
 
 // 월간 요약 찾기
 const findMonthly = (_code) => {
-  const pinCell = sheet_Monthly.createTextFinder("Finder" + _code).findAll();
+  const pinCell = sheet_Monthly.createTextFinder('Finder' + _code).findAll();
   let pinRow = pinCell[0].getRow() + 1;
   const pinColumn = pinCell[0].getColumn();
 
   const returnArray = [];
 
-  while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != "") {
+  while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != '') {
     returnArray.push({
       name: sheet_Monthly.getRange(pinRow, pinColumn).getValue(),
       num: sheet_Monthly.getRange(pinRow, pinColumn + 3).getValue(),
@@ -60,14 +60,14 @@ const writeYearly = (_code, _array, _month) => {
   if (month == 0) {
     month = 12;
   }
-  const pinCell = sheet_Yearly.createTextFinder("Finder" + _code).findAll();
+  const pinCell = sheet_Yearly.createTextFinder('Finder' + _code).findAll();
   let pinRow = pinCell[0].getRow() + 1;
   const pinColumn = pinCell[0].getColumn();
 
-  while (sheet_Yearly.getRange(pinRow, pinColumn).getValue() != "End" + _code) {
+  while (sheet_Yearly.getRange(pinRow, pinColumn).getValue() != 'End' + _code) {
     if (
-      sheet_Yearly.getRange(pinRow, pinColumn).getValue() != "" &&
-      sheet_Yearly.getRange(pinRow, pinColumn).getValue() != "월간 합계:"
+      sheet_Yearly.getRange(pinRow, pinColumn).getValue() != '' &&
+      sheet_Yearly.getRange(pinRow, pinColumn).getValue() != '월간 합계:'
     ) {
       for (let i in _array) {
         if (
@@ -89,7 +89,7 @@ const writeYearly = (_code, _array, _month) => {
 
 // 월간 거래 내역 복사
 const monthlyCopy = (_year, _month) => {
-  const mListPinCell = sheet_MonthlyList.createTextFinder("Finder01").findAll();
+  const mListPinCell = sheet_MonthlyList.createTextFinder('Finder01').findAll();
 
   const range = getListRange(
     sheet_MonthlyList,
@@ -98,11 +98,11 @@ const monthlyCopy = (_year, _month) => {
   );
 
   const sheet_YearlyList = GSS.getSheetByName(
-    String(_year).slice(2, 4) + "년 월간 거래"
+    String(_year).slice(2, 4) + '년 월간 거래'
   );
 
   const yListPinCell = sheet_YearlyList
-    .createTextFinder(_month == 0 ? "12월 거래" : _month + "월 거래")
+    .createTextFinder(_month == 0 ? '12월 거래' : _month + '월 거래')
     .findAll();
 
   range.copyTo(
@@ -134,44 +134,36 @@ const writeMyAsset = (_year, _month) => {
   // 2021 05
   console.log(_year, _month);
 
-  let pinCell = sheet_Monthly.createTextFinder("자산").findAll();
+  let pinCell = sheet_Monthly.createTextFinder('자산').findAll();
   let pinRow = pinCell[0].getRow() + 3;
   const pinColumn = pinCell[0].getColumn() + 3;
 
   let accountList = [0, 0, 0, 0];
   let monthlyAssetList = [];
 
-  while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != "Finder 03") {
+  while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != 'Finder 03') {
     const price = sheet_Monthly.getRange(pinRow, pinColumn).getValue();
     const name = sheet_Monthly.getRange(pinRow, pinColumn - 3).getValue();
 
-    if (name == "KB증권 CMA" || name == "주식 투자금") {
-      accountList[3] += price;
-    } else if (name == "IBK 주택청약통장") {
-      accountList[2] += price;
-    } else if (name == "사이다뱅크") {
-      accountList[1] += price;
-    } else {
-      accountList[0] += price;
-    }
+    accountList[groupCheck(name)] += price;
 
     pinRow++;
   }
 
   monthlyAssetList.push({
-    name: "일반 계좌",
+    name: '일반 계좌',
     num: accountList[0],
   });
   monthlyAssetList.push({
-    name: "저축 계좌",
+    name: '저축 계좌',
     num: accountList[1],
   });
   monthlyAssetList.push({
-    name: "청약 계좌",
+    name: '청약 계좌',
     num: accountList[2],
   });
   monthlyAssetList.push({
-    name: "투자 자금",
+    name: '투자 자금',
     num: accountList[3],
   });
 
@@ -187,8 +179,8 @@ const writeMyAsset = (_year, _month) => {
 
   const writePinRow = yearFinder[0].getRow();
 
-  let monthlyExpenseList = getMonthlyList("Finder01", _month);
-  let monthlyIncomeList = getMonthlyList("Finder02", _month);
+  let monthlyExpenseList = getMonthlyList('Finder01', _month);
+  let monthlyIncomeList = getMonthlyList('Finder02', _month);
   console.log(monthlyExpenseList);
 
   monthlyAssetList.forEach((el) => {
@@ -212,9 +204,9 @@ const getMonthlyList = (type, _month) => {
 
   while (
     sheet_Yearly.getRange(pinRow, pinColumn).getValue() !=
-    type.replace("Finder", "End")
+    type.replace('Finder', 'End')
   ) {
-    if (sheet_Yearly.getRange(pinRow, pinColumn).getValue() == "월간 합계:") {
+    if (sheet_Yearly.getRange(pinRow, pinColumn).getValue() == '월간 합계:') {
       const name = sheet_Yearly.getRange(pinRow, pinColumn - 1).getValue();
       const num = sheet_Yearly.getRange(pinRow, pinColumn + _month).getValue();
 
