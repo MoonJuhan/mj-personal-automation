@@ -7,7 +7,7 @@ const sheet_MyAsset = GSS.getSheetByName('연간 자산 기록');
 // 월간 잔고 설정
 const balanceUpdate = () => {
   const pinCell = sheet_Monthly.createTextFinder('자산').findAll();
-  const pinRow = pinCell[0].getRow() + 3;
+  let pinRow = pinCell[0].getRow() + 3;
   const pinColumn = pinCell[0].getColumn() + 3;
 
   while (sheet_Monthly.getRange(pinRow, pinColumn).getValue() != 'Finder 03') {
