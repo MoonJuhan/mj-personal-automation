@@ -19,6 +19,7 @@
   "dependencies": {
     "@babel/runtime": "^7.14.8",
     "axios": "^0.21.1",
+    "dayjs": "^1.10.6",
     "dotenv": "^10.0.0",
     "googleapis": "^82.0.0",
     "node-telegram-bot-api": "^0.54.0",
