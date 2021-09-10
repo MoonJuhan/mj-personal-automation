@@ -9,8 +9,12 @@ dotenv.config()
 const main = async () => {
   setTelegramBot()
   routineFunc()
-  getRentAnnouncement()
   telegramSend(`Node On ${dayjs().format('YYYY/MM/DD HH:mm')}`)
+  try {
+    getRentAnnouncement()
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 main()

@@ -30,14 +30,62 @@ const getLHData = async (areaCode) => {
         area: el.CNP_CD_NM,
         category: el.AIS_TP_CD_NM,
         endDate: el.CLSG_DT,
-        startDate: dayjs(el.PAN_DT).format('M/D'),
+        startDate: dayjs(el.PAN_DT).format('YYYY/MM/DD'),
       }
     })
 
     return announcementList.filter((el) => el.status !== '접수마감')
   } catch (error) {
     console.log(error.response)
+    return []
   }
+}
+
+const getSHData = async () => {
+  const url =
+    'https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2'
+  try {
+    const { data } = await axios.get(url)
+
+    return refineSHData(data)
+  } catch (error) {
+    console.log(error.response)
+    return []
+  }
+}
+  }
+}
+
+const refineSHData = (html) => {
+  const splitedHTML =
+    '<div ' + html.split('id="listTb"')[1].split('<div class="pagingWrap">')[0]
+
+  const root = parse(splitedHTML)
+  const tbody = root.querySelector('tbody')
+  const trList = tbody.querySelectorAll('tr')
+
+  const refinedData = trList.map((el, index) => {
+    const refineRawText = (string) => {
+      return typeof string === 'string'
+        ? string.replaceAll('\t', '').replaceAll('\n', '').replaceAll('\r', '')
+        : ''
+    }
+
+    const returnTitle = el
+      .querySelector('.txtL > a')
+      .childNodes.find(
+        (child) => refineRawText(child._rawText).length > 0
+      )._rawText
+
+    return {
+      title: refineRawText(returnTitle),
+      startDate: dayjs(
+        refineRawText(el.querySelector('.num').childNodes[0]._rawText)
+      ).format('YYYY/MM/DD'),
+    }
+  })
+
+  return refinedData
 }
 
 const refineGyeonGiList = (list) => {
@@ -54,10 +102,21 @@ const refineGyeonGiList = (list) => {
   return returnList.filter((item, index) => returnList.indexOf(item) === index)
 }
 
+const refineDate = (list) => {
+  return list.filter((el) => dayjs().diff(el.startDate, 'day') < 4)
+}
+
+const refineReturnATag = (announcement) => {
+  return `<a href="${announcement.url}">${announcement.title} (${dayjs(
+    announcement.startDate
+  ).format('M/D')})</a>`
+}
+
 const getRentAnnouncement = async () => {
   const dataSeoul = await getLHData('11')
   const dataGyeongGi = refineGyeonGiList(await getLHData('41'))
-  const announcementList = dataSeoul.concat(dataGyeongGi)
+  const lhAnnouncement = refineDate(dataSeoul.concat(dataGyeongGi))
+  const shAnnouncement = refineDate(await getSHData())
 
   let returnString = `
 공공임대 공고 조회 (${dayjs().format('M/D')})\n
@@ -66,16 +125,20 @@ const getRentAnnouncement = async () => {
 🤚 : 기타\n
 `
 
-  returnString += 'LH 공고\n'
-  returnString += announcementList
+  returnString += `LH 공고 (${lhAnnouncement.length}개)\n`
+  returnString += lhAnnouncement
     .map(
       (el) =>
         `<i>${
           el.status === '공고중' ? '✊' : el.status === '접수중' ? '👉' : '🤚'
-        }</i><a href="${el.url}">${el.title} (${el.startDate})</a>`
+        }</i>${refineReturnATag(el)}`
     )
     .join('\n')
 
+  returnString += `\n\n<a href="https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2">SH 공고 (${shAnnouncement.length}개)</a>\n`
+  returnString += shAnnouncement
+    .map((el) => `<i>🤚</i>${refineReturnATag(el)}`)
+    .join('\n')
   telegramSend(returnString)
 }
 
