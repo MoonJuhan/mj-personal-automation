@@ -1,6 +1,9 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
+import { parse } from 'node-html-parser'
 import { telegramSend } from './manageTelegram'
+
+console.log('??')
 
 const getLHData = async (areaCode) => {
   const start = dayjs().subtract(3, 'day').format('YYYY.MM.DD')
@@ -53,6 +56,17 @@ const getSHData = async () => {
     return []
   }
 }
+
+const getGhData = async () => {
+  const url = 'https://apply.gh.or.kr/information/pblancList.do?#a'
+
+  try {
+    const { data } = await axios.get(url)
+
+    return refineGHData(data)
+  } catch (error) {
+    console.log(error.response)
+    return []
   }
 }
 
@@ -88,6 +102,35 @@ const refineSHData = (html) => {
   return refinedData
 }
 
+const refineGHData = (html) => {
+  const table = parse(html).querySelector('#pblancList')
+  const tbody = table.querySelector('tbody')
+  //   const trList = tbody.querySelectorAll('tr')
+  console.log(tbody)
+
+  // const refinedTrList = trList.filter((tr) =>
+  //   tr.querySelectorAll('td')[1].childNodes[0]._rawText.includes('임대')
+  // )
+
+  //   const returnList = refinedTrList.map((tr) => {
+  //     const tdList = tr.querySelectorAll('td')
+  //     return {
+  //       title: tdList[2].querySelector('a').childNodes[0]._rawText,
+  //       startDate: dayjs(tdList[5].childNodes[0]._rawText).format('YYYY/MM/DD'),
+  //     }
+  //   })
+
+  //   trList.forEach((tr, index) => {
+  //     if (index < 2) {
+  //       //   console.log(tr.querySelectorAll('td'))
+  //       console.log(index)
+  //       console.log(tr)
+  //     }
+  //   })
+
+  return returnList || []
+}
+
 const refineGyeonGiList = (list) => {
   const targets = ['남양주', '하남', '구리']
 
@@ -117,6 +160,7 @@ const getRentAnnouncement = async () => {
   const dataGyeongGi = refineGyeonGiList(await getLHData('41'))
   const lhAnnouncement = refineDate(dataSeoul.concat(dataGyeongGi))
   const shAnnouncement = refineDate(await getSHData())
+  const ghAnnouncement = await getGhData()
 
   let returnString = `
 공공임대 공고 조회 (${dayjs().format('M/D')})\n
@@ -139,6 +183,12 @@ const getRentAnnouncement = async () => {
   returnString += shAnnouncement
     .map((el) => `<i>🤚</i>${refineReturnATag(el)}`)
     .join('\n')
+
+  returnString += `\n\nGH 공고 (${ghAnnouncement.length}개)\n`
+  returnString += ghAnnouncement
+    .map((el) => `<i>🤚</i>${refineReturnATag(el)}`)
+    .join('\n')
+
   telegramSend(returnString)
 }
 
