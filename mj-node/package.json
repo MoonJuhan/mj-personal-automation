@@ -14,7 +14,8 @@
   "prettier": {
     "singleQuote": true,
     "semi": false,
-    "trailingComma": "es5"
+    "trailingComma": "es5",
+    "printWidth": 200
   },
   "dependencies": {
     "@babel/runtime": "^7.14.8",

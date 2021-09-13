@@ -18,17 +18,12 @@ const authorize = () => {
   }
   const { client_secret, client_id, redirect_uris } = CREDENTIALS.installed
 
-  const oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0]
-  )
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0])
 
   const TOKEN = {
     access_token: process.env.GAS_ACCESS_TOKEN,
     refresh_token: process.env.GAS_REFRESH_TOKEN,
-    scope:
-      'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/script.projects',
+    scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/script.projects',
     token_type: 'Bearer',
     expiry_date: process.env.GAS_EXPIRY_DATE,
   }

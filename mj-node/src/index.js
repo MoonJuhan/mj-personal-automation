@@ -14,7 +14,7 @@ dayjs.extend(timezone)
 const main = async () => {
   setTelegramBot()
   routineFunc()
-  telegramSend(`Node On ${dayjs().tz("Asia/Seoul").format('YYYY/MM/DD HH:mm')}`)
+  telegramSend(`Node On ${dayjs().tz('Asia/Seoul').format('YYYY/MM/DD HH:mm')}`)
   try {
     getRentAnnouncement()
   } catch (error) {

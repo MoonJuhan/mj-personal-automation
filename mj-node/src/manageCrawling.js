@@ -4,11 +4,10 @@ import { parse } from 'node-html-parser'
 import { telegramSend } from './manageTelegram'
 
 const getLHData = async (areaCode) => {
-  const start = dayjs().tz("Asia/Seoul").subtract(3, 'day').format('YYYY.MM.DD')
-  const end = dayjs().tz("Asia/Seoul").format('YYYY.MM.DD')
+  const start = dayjs().tz('Asia/Seoul').subtract(3, 'day').format('YYYY.MM.DD')
+  const end = dayjs().tz('Asia/Seoul').format('YYYY.MM.DD')
 
-  const url =
-    'http://apis.data.go.kr/B552555/lhLeaseNoticeInfo1/lhLeaseNoticeInfo1'
+  const url = 'http://apis.data.go.kr/B552555/lhLeaseNoticeInfo1/lhLeaseNoticeInfo1'
 
   try {
     const { data } = await axios.get(url, {
@@ -31,8 +30,7 @@ const getLHData = async (areaCode) => {
 }
 
 const getSHData = async () => {
-  const url =
-    'https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2'
+  const url = 'https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2'
   try {
     const { data } = await axios.get(url)
 
@@ -73,8 +71,7 @@ const refineLHData = (data) => {
 }
 
 const refineSHData = (html) => {
-  const splitedHTML =
-    '<div ' + html.split('id="listTb"')[1].split('<div class="pagingWrap">')[0]
+  const splitedHTML = '<div ' + html.split('id="listTb"')[1].split('<div class="pagingWrap">')[0]
 
   const root = parse(splitedHTML)
   const tbody = root.querySelector('tbody')
@@ -82,22 +79,14 @@ const refineSHData = (html) => {
 
   const refinedData = trList.map((el, index) => {
     const refineRawText = (string) => {
-      return typeof string === 'string'
-        ? string.replaceAll('\t', '').replaceAll('\n', '').replaceAll('\r', '')
-        : ''
+      return typeof string === 'string' ? string.replaceAll('\t', '').replaceAll('\n', '').replaceAll('\r', '') : ''
     }
 
-    const returnTitle = el
-      .querySelector('.txtL > a')
-      .childNodes.find(
-        (child) => refineRawText(child._rawText).length > 0
-      )._rawText
+    const returnTitle = el.querySelector('.txtL > a').childNodes.find((child) => refineRawText(child._rawText).length > 0)._rawText
 
     return {
       title: refineRawText(returnTitle),
-      startDate: dayjs(
-        refineRawText(el.querySelector('.num').childNodes[0]._rawText)
-      ).format('YYYY/MM/DD'),
+      startDate: dayjs(refineRawText(el.querySelector('.num').childNodes[0]._rawText)).format('YYYY/MM/DD'),
     }
   })
 
@@ -119,18 +108,14 @@ const refineGHData = (announcementList) => {
 
     if (announcement.bsnsTyNm) pushItem.category = announcement.bsnsTyNm
 
-    if (announcement.rceptEndde)
-      pushItem.endDate = dayjs(announcement.rceptEndde).format('YYYY/MM/DD')
+    if (announcement.rceptEndde) pushItem.endDate = dayjs(announcement.rceptEndde).format('YYYY/MM/DD')
 
-    if (announcement.rceptBgnde)
-      pushItem.startDate = dayjs(announcement.rceptBgnde).format('YYYY/MM/DD')
+    if (announcement.rceptBgnde) pushItem.startDate = dayjs(announcement.rceptBgnde).format('YYYY/MM/DD')
 
     returnList.push(pushItem)
   })
 
-  return refineDate(
-    refineGyeonGiList(returnList).filter((el) => el.status !== '접수마감')
-  )
+  return refineDate(refineGyeonGiList(returnList).filter((el) => el.status !== '접수마감'))
 }
 
 const refineGyeonGiList = (list) => {
@@ -139,24 +124,18 @@ const refineGyeonGiList = (list) => {
   const returnList = []
 
   targets.forEach((target) => {
-    list
-      .filter(
-        (el) => el.title.includes(target) || el.area?.includes(target) || false
-      )
-      .forEach((announcement) => returnList.push(announcement))
+    list.filter((el) => el.title.includes(target) || el.area?.includes(target) || false).forEach((announcement) => returnList.push(announcement))
   })
 
   return returnList.filter((item, index) => returnList.indexOf(item) === index)
 }
 
 const refineDate = (list) => {
-  return list.filter((el) => dayjs().tz("Asia/Seoul").diff(el.startDate, 'day') < 4)
+  return list.filter((el) => dayjs().tz('Asia/Seoul').diff(el.startDate, 'day') < 4)
 }
 
 const refineReturnATag = (announcement) => {
-  return `<a href="${announcement.url}">${announcement.title} (${dayjs(
-    announcement.startDate
-  ).format('M/D')})</a>`
+  return `<a href="${announcement.url}">${announcement.title} (${dayjs(announcement.startDate).format('M/D')})</a>`
 }
 
 const getRentAnnouncement = async () => {
@@ -167,31 +146,20 @@ const getRentAnnouncement = async () => {
   const ghAnnouncement = await getGhData()
 
   let returnString = `
-공공임대 공고 조회 (${dayjs().tz("Asia/Seoul").format('M/D')})\n
+공공임대 공고 조회 (${dayjs().tz('Asia/Seoul').format('M/D')})\n
 ✊ : 공고중
 👉 : 접수중
 🤚 : 기타\n
 `
 
   returnString += `LH 공고 (${lhAnnouncement.length}개)\n`
-  returnString += lhAnnouncement
-    .map(
-      (el) =>
-        `<i>${
-          el.status === '공고중' ? '✊' : el.status === '접수중' ? '👉' : '🤚'
-        }</i>${refineReturnATag(el)}`
-    )
-    .join('\n')
+  returnString += lhAnnouncement.map((el) => `<i>${el.status === '공고중' ? '✊' : el.status === '접수중' ? '👉' : '🤚'}</i>${refineReturnATag(el)}`).join('\n')
 
   returnString += `\n\n<a href="https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2">SH 공고 (${shAnnouncement.length}개)</a>\n`
-  returnString += shAnnouncement
-    .map((el) => `<i>🤚</i>${refineReturnATag(el)}`)
-    .join('\n')
+  returnString += shAnnouncement.map((el) => `<i>🤚</i>${refineReturnATag(el)}`).join('\n')
 
   returnString += `\n\nGH 공고 (${ghAnnouncement.length}개)\n`
-  returnString += ghAnnouncement
-    .map((el) => `<i>🤚</i>${refineReturnATag(el)}`)
-    .join('\n')
+  returnString += ghAnnouncement.map((el) => `<i>🤚</i>${refineReturnATag(el)}`).join('\n')
 
   telegramSend(returnString)
 }
