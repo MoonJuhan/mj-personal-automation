@@ -58,12 +58,12 @@ const getSHData = async () => {
 }
 
 const getGhData = async () => {
-  const url = 'https://apply.gh.or.kr/information/pblancList.do?#a'
+  const url = 'https://apply.gh.or.kr/pblanc/getBoardPblancList.do'
 
   try {
     const { data } = await axios.get(url)
 
-    return refineGHData(data)
+    return refineGHData(data.result.pblancList)
   } catch (error) {
     console.log(error.response)
     return []
@@ -102,33 +102,33 @@ const refineSHData = (html) => {
   return refinedData
 }
 
-const refineGHData = (html) => {
-  const table = parse(html).querySelector('#pblancList')
-  const tbody = table.querySelector('tbody')
-  //   const trList = tbody.querySelectorAll('tr')
-  console.log(tbody)
+const refineGHData = (announcementList) => {
+  const returnList = []
 
-  // const refinedTrList = trList.filter((tr) =>
-  //   tr.querySelectorAll('td')[1].childNodes[0]._rawText.includes('임대')
-  // )
+  announcementList.forEach((announcement) => {
+    const pushItem = {
+      title: announcement.pblancNm,
+      url: `apply.gh.or.kr/information/pblanc.do?pblancNo=${announcement.pblancNo}&atchmnflSn=${announcement.atchmnflSn}&pblancKnd=${announcement.pblancKnd}&selArea=&selCate=&selState=&pageIndex=1`,
+    }
 
-  //   const returnList = refinedTrList.map((tr) => {
-  //     const tdList = tr.querySelectorAll('td')
-  //     return {
-  //       title: tdList[2].querySelector('a').childNodes[0]._rawText,
-  //       startDate: dayjs(tdList[5].childNodes[0]._rawText).format('YYYY/MM/DD'),
-  //     }
-  //   })
+    if (announcement.progrsSttusNm) pushItem.status = announcement.progrsSttusNm
 
-  //   trList.forEach((tr, index) => {
-  //     if (index < 2) {
-  //       //   console.log(tr.querySelectorAll('td'))
-  //       console.log(index)
-  //       console.log(tr)
-  //     }
-  //   })
+    if (announcement.suplyAreaNm) pushItem.area = announcement.suplyAreaNm
 
-  return returnList || []
+    if (announcement.bsnsTyNm) pushItem.category = announcement.bsnsTyNm
+
+    if (announcement.rceptEndde)
+      pushItem.endDate = dayjs(announcement.rceptEndde).format('YYYY/MM/DD')
+
+    if (announcement.rceptBgnde)
+      pushItem.startDate = dayjs(announcement.rceptBgnde).format('YYYY/MM/DD')
+
+    returnList.push(pushItem)
+  })
+
+  return refineDate(
+    refineGyeonGiList(returnList).filter((el) => el.status !== '접수마감')
+  )
 }
 
 const refineGyeonGiList = (list) => {
@@ -138,7 +138,9 @@ const refineGyeonGiList = (list) => {
 
   targets.forEach((target) => {
     list
-      .filter((el) => el.title.includes(target))
+      .filter(
+        (el) => el.title.includes(target) || el.area?.includes(target) || false
+      )
       .forEach((announcement) => returnList.push(announcement))
   })
 
