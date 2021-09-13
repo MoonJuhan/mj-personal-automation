@@ -25,19 +25,7 @@ const getLHData = async (areaCode) => {
       },
     })
 
-    const announcementList = data[1].dsList.map((el) => {
-      return {
-        title: el.PAN_NM,
-        status: el.PAN_SS,
-        url: el.DTL_URL,
-        area: el.CNP_CD_NM,
-        category: el.AIS_TP_CD_NM,
-        endDate: el.CLSG_DT,
-        startDate: dayjs(el.PAN_DT).format('YYYY/MM/DD'),
-      }
-    })
-
-    return announcementList.filter((el) => el.status !== '접수마감')
+    return refineLHData(data)
   } catch (error) {
     console.log(error.response)
     return []
@@ -70,6 +58,22 @@ const getGhData = async () => {
   }
 }
 
+const refineLHData = (data) => {
+  const announcementList = data[1].dsList.map((el) => {
+    return {
+      title: el.PAN_NM,
+      status: el.PAN_SS,
+      url: el.DTL_URL,
+      area: el.CNP_CD_NM,
+      category: el.AIS_TP_CD_NM,
+      endDate: el.CLSG_DT,
+      startDate: dayjs(el.PAN_DT).format('YYYY/MM/DD'),
+    }
+  })
+
+  return refineDate(announcementList.filter((el) => el.status !== '접수마감'))
+}
+
 const refineSHData = (html) => {
   const splitedHTML =
     '<div ' + html.split('id="listTb"')[1].split('<div class="pagingWrap">')[0]
@@ -99,7 +103,7 @@ const refineSHData = (html) => {
     }
   })
 
-  return refinedData
+  return refineDate(refinedData)
 }
 
 const refineGHData = (announcementList) => {
@@ -160,8 +164,8 @@ const refineReturnATag = (announcement) => {
 const getRentAnnouncement = async () => {
   const dataSeoul = await getLHData('11')
   const dataGyeongGi = refineGyeonGiList(await getLHData('41'))
-  const lhAnnouncement = refineDate(dataSeoul.concat(dataGyeongGi))
-  const shAnnouncement = refineDate(await getSHData())
+  const lhAnnouncement = dataSeoul.concat(dataGyeongGi)
+  const shAnnouncement = await getSHData()
   const ghAnnouncement = await getGhData()
 
   let returnString = `
