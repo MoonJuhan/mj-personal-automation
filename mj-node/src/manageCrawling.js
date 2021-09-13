@@ -6,8 +6,8 @@ import { telegramSend } from './manageTelegram'
 console.log('??')
 
 const getLHData = async (areaCode) => {
-  const start = dayjs().subtract(3, 'day').format('YYYY.MM.DD')
-  const end = dayjs().format('YYYY.MM.DD')
+  const start = dayjs().tz("Asia/Seoul").subtract(3, 'day').format('YYYY.MM.DD')
+  const end = dayjs().tz("Asia/Seoul").format('YYYY.MM.DD')
 
   const url =
     'http://apis.data.go.kr/B552555/lhLeaseNoticeInfo1/lhLeaseNoticeInfo1'
@@ -152,7 +152,7 @@ const refineGyeonGiList = (list) => {
 }
 
 const refineDate = (list) => {
-  return list.filter((el) => dayjs().diff(el.startDate, 'day') < 4)
+  return list.filter((el) => dayjs().tz("Asia/Seoul").diff(el.startDate, 'day') < 4)
 }
 
 const refineReturnATag = (announcement) => {
@@ -169,7 +169,7 @@ const getRentAnnouncement = async () => {
   const ghAnnouncement = await getGhData()
 
   let returnString = `
-공공임대 공고 조회 (${dayjs().format('M/D')})\n
+공공임대 공고 조회 (${dayjs().tz("Asia/Seoul").format('M/D')})\n
 ✊ : 공고중
 👉 : 접수중
 🤚 : 기타\n
