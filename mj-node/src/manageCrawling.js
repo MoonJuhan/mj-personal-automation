@@ -3,8 +3,6 @@ import dayjs from 'dayjs'
 import { parse } from 'node-html-parser'
 import { telegramSend } from './manageTelegram'
 
-console.log('??')
-
 const getLHData = async (areaCode) => {
   const start = dayjs().tz("Asia/Seoul").subtract(3, 'day').format('YYYY.MM.DD')
   const end = dayjs().tz("Asia/Seoul").format('YYYY.MM.DD')
