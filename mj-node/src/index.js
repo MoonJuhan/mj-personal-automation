@@ -5,6 +5,7 @@ import utc from 'dayjs/plugin/utc'
 import { routineFunc } from './manageGoogleAppsScript'
 import { setTelegramBot, telegramSend } from './manageTelegram'
 import { getRentAnnouncement } from './manageCrawling'
+import { setScheduler } from './manageScheduler'
 
 dotenv.config()
 
@@ -15,6 +16,7 @@ const main = async () => {
   setTelegramBot()
   routineFunc()
   telegramSend(`Node On ${dayjs().tz('Asia/Seoul').format('YYYY/MM/DD HH:mm')}`)
+  setScheduler()
   try {
     getRentAnnouncement()
   } catch (error) {
