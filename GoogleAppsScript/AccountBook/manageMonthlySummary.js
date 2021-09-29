@@ -2,9 +2,7 @@ const sheetMonthlySummary = GSS.getSheetByName('월간 요약');
 
 // 월간 잔고 설정
 const balanceUpdate = (date) => {
-  const pinCell = sheetMonthlySummary.createTextFinder('자산').findAll();
-  let pinRow = pinCell[0].getRow() + 3;
-  const pinColumn = pinCell[0].getColumn() + 3;
+  let { pinRow, pinColumn } = findAssetsPin();
 
   const assetsList = [];
 
@@ -35,4 +33,32 @@ const balanceUpdate = (date) => {
   }
 
   writeMonthlyData('Finder01', '수입', '자산', 1, assetsList, date);
+
+  updateCreditBills();
+};
+
+const updateCreditBills = () => {
+  const { pinRow, pinColumn } = findAssetsPin();
+
+  const creditPinColumn = pinColumn + 2;
+
+  const value = sheetMonthlySummary
+    .getRange(pinRow, creditPinColumn)
+    .getValue();
+
+  const writePin = sheetMonthlySummary
+    .createTextFinder('전월 카드 값')
+    .findAll();
+
+  sheetMonthlySummary
+    .getRange(writePin[0].getRow() - 1, writePin[0].getColumn())
+    .setValue(value);
+};
+
+const findAssetsPin = () => {
+  const pinCell = sheetMonthlySummary.createTextFinder('자산').findAll();
+  const pinRow = pinCell[0].getRow() + 3;
+  const pinColumn = pinCell[0].getColumn() + 3;
+
+  return { pinRow, pinColumn };
 };
