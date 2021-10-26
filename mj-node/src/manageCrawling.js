@@ -115,15 +115,13 @@ const refineGHData = (announcementList) => {
     returnList.push(pushItem)
   })
 
-  return refineDate(refineGyeonGiList(returnList).filter((el) => el.status !== '접수마감'))
+  return refineDate(returnList.filter((el) => el.status !== '접수마감'))
 }
 
-const refineGyeonGiList = (list) => {
-  const targets = ['남양주', '하남', '구리']
-
+const refineGyeonGiList = (list, filters) => {
   const returnList = []
 
-  targets.forEach((target) => {
+  filters.forEach((target) => {
     list.filter((el) => el.title.includes(target) || el.area?.includes(target) || false).forEach((announcement) => returnList.push(announcement))
   })
 
@@ -138,30 +136,72 @@ const refineReturnATag = (announcement) => {
   return `<a href="${announcement.url}">${announcement.title} (${dayjs(announcement.startDate).format('M/D')})</a>`
 }
 
+const getUserList = async () => {
+  try {
+    const { data } = await axios({
+      method: 'get',
+      url: `https://docs.google.com/spreadsheets/d/${process.env.GOOGLE_SHEET_ID}/gviz/tq?sheet=PublicRentalHouse`,
+    })
+
+    return refineSheetsData(data)
+  } catch (error) {
+    console.log(error)
+    return []
+  }
+}
+
+const refineSheetsData = (string) => {
+  const firstSplit = string.split('google.visualization.Query.setResponse(')[1]
+
+  const jsonData = JSON.parse(firstSplit.slice(0, firstSplit.length - 2))
+
+  const userList = []
+
+  const refineFilter = (filterString) => {
+    return filterString ? filterString.split(', ') : []
+  }
+
+  jsonData.table.rows.forEach((el) => {
+    const row = el.c
+
+    userList.push({
+      chatId: row[1]?.v,
+      filters: refineFilter(row[2]?.v),
+    })
+  })
+
+  return userList
+}
+
 const getRentAnnouncement = async () => {
+  const userList = await getUserList()
+
   const dataSeoul = await getLHData('11')
-  const dataGyeongGi = refineGyeonGiList(await getLHData('41'))
-  const lhAnnouncement = dataSeoul.concat(dataGyeongGi)
+  const dataGyeongGi = await getLHData('41')
   const shAnnouncement = await getSHData()
-  const ghAnnouncement = await getGhData()
+  const dataGH = await getGhData()
 
-  let returnString = `
-공공임대 공고 조회 (${dayjs().tz('Asia/Seoul').format('M/D')})\n
-✊ : 공고중
-👉 : 접수중
-🤚 : 기타\n
-`
+  userList.forEach((user) => {
+    const lhAnnouncement = dataSeoul.concat(refineGyeonGiList(dataGyeongGi, user.filters))
+    const ghAnnouncement = refineGyeonGiList(dataGH, user.filters)
 
-  returnString += `LH 공고 (${lhAnnouncement.length}개)\n`
-  returnString += lhAnnouncement.map((el) => `<i>${el.status === '공고중' ? '✊' : el.status === '접수중' ? '👉' : '🤚'}</i>${refineReturnATag(el)}`).join('\n')
+    let returnString = `
+    공공임대 공고 조회 (${dayjs().tz('Asia/Seoul').format('M/D')})\n
+    ✊ : 공고중
+    👉 : 접수중
+    🤚 : 기타\n
+    `
+    returnString += `LH 공고 (${lhAnnouncement.length}개)\n`
+    returnString += lhAnnouncement.map((el) => `<i>${el.status === '공고중' ? '✊' : el.status === '접수중' ? '👉' : '🤚'}</i>${refineReturnATag(el)}`).join('\n')
 
-  returnString += `\n\n<a href="https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2">SH 공고 (${shAnnouncement.length}개)</a>\n`
-  returnString += shAnnouncement.map((el) => `<i>🤚</i>${refineReturnATag(el)}`).join('\n')
+    returnString += `\n\n<a href="https://www.i-sh.co.kr/main/lay2/program/S1T294C297/www/brd/m_247/list.do?multi_itm_seq=2">SH 공고 (${shAnnouncement.length}개)</a>\n`
+    returnString += shAnnouncement.map((el) => `<i>🤚</i>${refineReturnATag(el)}`).join('\n')
 
-  returnString += `\n\nGH 공고 (${ghAnnouncement.length}개)\n`
-  returnString += ghAnnouncement.map((el) => `<i>🤚</i>${refineReturnATag(el)}`).join('\n')
+    returnString += `\n\nGH 공고 (${ghAnnouncement.length}개)\n`
+    returnString += ghAnnouncement.map((el) => `<i>🤚</i>${refineReturnATag(el)}`).join('\n')
 
-  telegramSend(returnString)
+    telegramSend(returnString, user.chatId)
+  })
 }
 
 export { getRentAnnouncement }

@@ -18,8 +18,8 @@ const setTelegramBot = () => {
   })
 }
 
-const telegramSend = (message) => {
-  bot.sendMessage(process.env.TELEGRAM_CHAT_ID, message, { parse_mode: 'HTML' })
+const telegramSend = (message, chatId) => {
+  bot.sendMessage(chatId ? chatId : process.env.TELEGRAM_CHAT_ID, message, { parse_mode: 'HTML' })
 }
 
 export { setTelegramBot, telegramSend }
