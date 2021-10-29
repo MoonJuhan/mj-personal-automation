@@ -32,7 +32,7 @@ const authorize = () => {
   _auth = oAuth2Client
 }
 
-const callAppsScript = (parameters, callback) => {
+const callAppsScript = (functionName, parameters, callback) => {
   if (!_auth) authorize()
 
   const script = google.script({ version: 'v1', auth: _auth })
@@ -41,7 +41,7 @@ const callAppsScript = (parameters, callback) => {
     {
       scriptId: process.env.GAS_SCRIPT_ID,
       resource: {
-        function: process.env.GAS_FUNCTION_NAME,
+        function: functionName,
         parameters,
         devMode: true,
       },
@@ -66,7 +66,7 @@ const routineFunc = async () => {
   const data = await getSensorData()
   console.log(data)
 
-  callAppsScript(data, (suc, res) => {
+  callAppsScript(process.env.GAS_FUNCTION_NAME, data, (suc, res) => {
     if (!suc) telegramSend('ESP8266 Error')
 
     setTimeout(() => {
@@ -75,4 +75,4 @@ const routineFunc = async () => {
   })
 }
 
-export { routineFunc }
+export { routineFunc, callAppsScript }
