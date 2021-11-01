@@ -3,22 +3,32 @@ const sheetPublicRentalHouse = T_GSS.getSheetByName('PublicRentalHouse');
 
 const findSubscriptionPin = (chatId) => {
   const pinCell = sheetPublicRentalHouse.createTextFinder(chatId).findAll();
-  const pinRow = pinCell[0].getRow();
-  const pinColumn = pinCell[0].getColumn();
+  if (pinCell.length === 0) {
+    return { error: true };
+  } else {
+    const pinRow = pinCell[0].getRow();
+    const pinColumn = pinCell[0].getColumn();
 
-  return { pinRow, pinColumn };
+    return { pinRow, pinColumn };
+  }
 };
 
 const getSubscription = ({ chatId }) => {
-  const { pinRow, pinColumn } = findSubscriptionPin(chatId);
+  const { pinRow, pinColumn, error } = findSubscriptionPin(chatId);
 
-  const filters = sheetPublicRentalHouse
-    .getRange(pinRow, pinColumn + 1)
-    .getValue();
+  if (error) {
+    return {
+      msg: `당신의 Chat Id는 ${chatId}입니다.\n해당 Chat Id로 구독을 하고 있지 않습니다.`,
+    };
+  } else {
+    const filters = sheetPublicRentalHouse
+      .getRange(pinRow, pinColumn + 1)
+      .getValue();
 
-  return {
-    msg: `당신의 Chat Id는 ${chatId}입니다.\n당신이 선택한 경기도 필터는 ${filters}입니다.`,
-  };
+    return {
+      msg: `당신의 Chat Id는 ${chatId}입니다.\n당신이 선택한 경기도 필터는 ${filters}입니다.`,
+    };
+  }
 };
 
 const editSubscription = ({ chatId, filters }) => {
