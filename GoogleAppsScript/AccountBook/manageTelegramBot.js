@@ -51,9 +51,15 @@ const writeSubscription = (row, chatId, filters) => {
 };
 
 const deleteSubscription = ({ chatId }) => {
-  const { pinRow } = findSubscriptionPin(chatId);
+  const { pinRow, error } = findSubscriptionPin(chatId);
 
-  sheetPublicRentalHouse.deleteRow(pinRow);
+  if (!error) {
+    sheetPublicRentalHouse.deleteRow(pinRow);
 
-  return { msg: '알림 구독이 취소되었습니다.' };
+    return { msg: '알림 구독이 취소되었습니다.' };
+  } else {
+    return {
+      msg: `당신의 Chat Id는 ${chatId}입니다.\n해당 Chat Id로 구독을 하고 있지 않습니다.`,
+    };
+  }
 };
