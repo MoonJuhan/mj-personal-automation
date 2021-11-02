@@ -32,12 +32,12 @@ const authorize = () => {
   _auth = oAuth2Client
 }
 
-const callAppsScript = (functionName, parameters, callback) => {
+const callAppsScript = async (functionName, parameters, callback) => {
   if (!_auth) authorize()
 
   const script = google.script({ version: 'v1', auth: _auth })
 
-  script.scripts.run(
+  await script.scripts.run(
     {
       scriptId: process.env.GAS_SCRIPT_ID,
       resource: {
