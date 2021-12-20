@@ -66,13 +66,17 @@ const routineFunc = async () => {
   const data = await getSensorData()
   console.log(data)
 
-  callAppsScript(process.env.GAS_FUNCTION_NAME, data, (suc, res) => {
-    if (!suc) telegramSend('ESP8266 Error')
+  if (data !== 'Err') {
+    callAppsScript(process.env.GAS_FUNCTION_NAME, data, (suc, res) => {
+      if (!suc) telegramSend('ESP8266 Error')
 
-    setTimeout(() => {
-      routineFunc()
-    }, 600000)
-  })
+      setTimeout(() => {
+        routineFunc()
+      }, 600000)
+    })
+  }else{
+    telegramSend('ESP8266 Error. Routine Function is Stop.')
+  }
 }
 
 export { routineFunc, callAppsScript }

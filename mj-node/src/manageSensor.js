@@ -11,6 +11,7 @@ const getSensorData = async () => {
     return refineData(data)
   } catch (error) {
     this.log(error)
+    return 'Err'
   }
 }
 
