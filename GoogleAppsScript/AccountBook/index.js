@@ -24,3 +24,12 @@ const dailyFunc = () => {
   // 상환금 작성
   writePayback();
 };
+
+const writeData = (sheet, row, col, data) => {
+  console.log(
+    `${sheet.getName()} - ${row}, ${col} - ${sheet
+      .getRange(row, col)
+      .getValue()} -> ${data}`
+  );
+  sheet.getRange(row, col).setValue(data);
+};

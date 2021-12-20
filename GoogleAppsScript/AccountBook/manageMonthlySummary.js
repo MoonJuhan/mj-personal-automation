@@ -26,9 +26,12 @@ const balanceUpdate = (date) => {
       findAsset.value += value;
     }
 
-    sheetMonthlySummary
-      .getRange(pinRow, pinColumn - 1)
-      .setValue(sheetMonthlySummary.getRange(pinRow, pinColumn).getValue());
+    writeData(
+      sheetMonthlySummary,
+      pinRow,
+      pinColumn - 1,
+      sheetMonthlySummary.getRange(pinRow, pinColumn).getValue()
+    );
     pinRow++;
   }
 
@@ -50,9 +53,12 @@ const updateCreditBills = () => {
     .createTextFinder('전월 카드 값')
     .findAll();
 
-  sheetMonthlySummary
-    .getRange(writePin[0].getRow() - 1, writePin[0].getColumn())
-    .setValue(value);
+  writeData(
+    sheetMonthlySummary,
+    writePin[0].getRow() - 1,
+    writePin[0].getColumn(),
+    value
+  );
 };
 
 const findAssetsPin = () => {

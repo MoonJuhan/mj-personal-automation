@@ -42,7 +42,6 @@ const writeMonthlyData = (
   data,
   date
 ) => {
-  console.log(data)
   const pinCell = sheetYearlyDB.createTextFinder(finderStart).findAll();
   const pinRow = pinCell[0].getRow();
   let pinColumn = pinCell[0].getColumn();
@@ -60,7 +59,9 @@ const writeMonthlyData = (
 
     if (categoryName) {
       const findCategory = data.find((el) => el.categoryName === categoryName);
-      writeData(sheetYearlyDB, writePinRow, pinColumn, findCategory.value);
+
+      if (findCategory)
+        writeData(sheetYearlyDB, writePinRow, pinColumn, findCategory.value);
     }
     pinColumn++;
   }
@@ -78,8 +79,4 @@ const getWritePinRow = (date) => {
     );
 
   return yearFinder[0].getRow();
-};
-
-const writeData = (sheet, row, col, data) => {
-  sheet.getRange(row, col).setValue(data);
 };
