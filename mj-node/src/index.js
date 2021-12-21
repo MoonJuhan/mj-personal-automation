@@ -12,6 +12,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const main = async () => {
+  console.log('Process Start')
   setTelegramBot()
   routineFunc()
   telegramSend(`Node On ${dayjs().tz('Asia/Seoul').format('YYYY/MM/DD HH:mm')}`)
