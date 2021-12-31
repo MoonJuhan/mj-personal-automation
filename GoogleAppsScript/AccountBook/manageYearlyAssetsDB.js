@@ -68,14 +68,17 @@ const writeMonthlyData = (
 };
 
 const getWritePinRow = (date) => {
+  const _year = date.month == 0 ? date.year - 1 : date.year
+  const _month = date.month == 0 ? 12 : date.year
+
   const yearFinder = sheetYearlyDB
-    .createTextFinder(date.year)
+    .createTextFinder(_year)
     .findAll()
     .filter(
       (el) =>
         el.getColumn() == 2 &&
         sheetYearlyDB.getRange(el.getRow(), el.getColumn() + 1).getValue() ==
-          date.month
+        _month
     );
 
   return yearFinder[0].getRow();
