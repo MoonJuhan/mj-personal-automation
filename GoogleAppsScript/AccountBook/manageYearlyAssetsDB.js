@@ -69,7 +69,7 @@ const writeMonthlyData = (
 
 const getWritePinRow = (date) => {
   const _year = date.month == 0 ? date.year - 1 : date.year
-  const _month = date.month == 0 ? 12 : date.year
+  const _month = date.month == 0 ? 12 : date.month
 
   const yearFinder = sheetYearlyDB
     .createTextFinder(_year)
