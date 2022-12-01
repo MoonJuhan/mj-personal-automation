@@ -2,6 +2,9 @@ const sheetMonthlySummary = GSS.getSheetByName('월간 요약');
 
 // 월간 잔고 설정
 const balanceUpdate = (date) => {
+  const { getValueWithPosition, findPositionWithText, writeData } =
+    useHelpers();
+
   let { pinRow, pinColumn } = findAssetsPin();
 
   const assetsList = [];
@@ -41,6 +44,9 @@ const balanceUpdate = (date) => {
 };
 
 const updateCreditBills = () => {
+  const { getValueWithPosition, findPositionWithText, writeData } =
+    useHelpers();
+
   const { pinRow, pinColumn } = findAssetsPin();
 
   const creditPinColumn = pinColumn + 2;
