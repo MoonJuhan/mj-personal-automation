@@ -3,31 +3,22 @@ const GSS = SpreadsheetApp.getActive();
 // 월간 실행 함수
 const monthlyFunc = () => {
   // 연월 확인
+  // 스크립트가 작동하는 시점은 다음 달 임을 주의해야함
   const time = new Date();
-  const month = time.getMonth();
-  const year = time.getFullYear();
+  // const month = time.getMonth();
+  // const year = time.getFullYear();
 
-  console.log('연간 자산 데이터베이스 작성')
-  manageYearlyAssetsDB({ year, month });
+  const month = 0;
+  const year = 2023;
 
-  console.log('월간 잔고 설정')
-  balanceUpdate({ year, month });
+  // console.log('연간 자산 데이터베이스 작성');
+  // const { manageYearlyAssetsDB } = useManageAssetsDB();
+  // manageYearlyAssetsDB({ year, month });
 
-  console.log('월간 거래 내역 업데이트')
-  monthlyCopy(month == 0 ? year - 1 : year, month);
-};
+  // console.log('월간 잔고 설정');
+  // balanceUpdate({ year, month });
 
-// 일간 실행 함수
-const dailyFunc = () => {
-  // 상환금 작성
-  writePayback();
-};
-
-const writeData = (sheet, row, col, data) => {
-  console.log(
-    `${sheet.getName()} - ${row}, ${col} - ${sheet
-      .getRange(row, col)
-      .getValue()} -> ${data}`
-  );
-  sheet.getRange(row, col).setValue(data);
+  console.log('월간 거래 내역 업데이트');
+  const { updateMonthlyInfos } = useMonthlyInfosDB();
+  updateMonthlyInfos({ year, month });
 };
