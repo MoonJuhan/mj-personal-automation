@@ -4,7 +4,7 @@
 
 ## 목록
 
-- Google Apps Sciprt
+- mj-account-book-google-apps-script
     - Google SpreadSheet로 작성하고 있는 가계부를 자동화 해주는 Google Apps Script 프로젝트 입니다.
 - Node.js Server
     - HomeIoT Sensor를 조회하여 기록하는 기능을 가지고 있습니다.
