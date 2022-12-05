@@ -65,7 +65,7 @@ const useMonthlyInfosDB = () => {
       { value: '설명', width: 80 },
       { value: '소비 금액', width: 60 },
       { value: '카테고리', width: 80 },
-      { value: '결제 수단', width: 80 },
+      { value: '결제 수단', width: 110 },
       { value: '', width: 40 },
       { value: '날짜', width: 50, additionalValue: '수입' },
       { value: '금액', width: 60 },
