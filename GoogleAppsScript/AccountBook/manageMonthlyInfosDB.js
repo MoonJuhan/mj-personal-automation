@@ -55,28 +55,57 @@ const useMonthlyInfosDB = () => {
     }
   };
 
-  const addColumns = (column) => {
+  const addColumns = (year, month, column) => {
     const lastColumn = sheetMonthlyInfosDB.getLastColumn();
     sheetMonthlyInfosDB.insertColumnsAfter(lastColumn + 1, 13);
 
     const monthlyInfosHeaders = [
-      '날짜',
-      '결제 금액',
-      '설명',
-      '소비 금액',
-      '카테고리',
-      '결제 수단',
-      '',
-      '날짜',
-      '금액',
-      '설명',
-      '카테고리',
-      '받은 수단',
+      { value: '날짜', width: 50, additionalValue: '지출' },
+      { value: '결제 금액', width: 60 },
+      { value: '설명', width: 80 },
+      { value: '소비 금액', width: 60 },
+      { value: '카테고리', width: 80 },
+      { value: '결제 수단', width: 80 },
+      { value: '', width: 40 },
+      { value: '날짜', width: 50, additionalValue: '수입' },
+      { value: '금액', width: 60 },
+      { value: '설명', width: 80 },
+      { value: '카테고리', width: 80 },
+      { value: '받은 수단', width: 80 },
     ];
 
-    monthlyInfosHeaders.forEach((header, index) => {
-      console.log(header, column + 13, index);
+    const refinedColumn = column + monthlyInfosHeaders.length + 1;
+
+    sheetMonthlyInfosDB
+      .getRange(6, refinedColumn, 1, monthlyInfosHeaders.length)
+      .setValues([monthlyInfosHeaders.map(({ value }) => value)])
+      .setFontSize(8);
+
+    monthlyInfosHeaders.forEach(({ width, additionalValue }, index) => {
+      const targetColumn = refinedColumn + index;
+
+      if (additionalValue) {
+        writeData(
+          sheetMonthlyInfosDB,
+          5,
+          targetColumn,
+          additionalValue
+        ).setFontSize(10);
+      }
+
+      sheetMonthlyInfosDB.setColumnWidths(targetColumn, 1, width);
     });
+
+    sheetMonthlyInfosDB
+      .getRange(3, refinedColumn, 2)
+      .setValues([[year], [month]])
+      .setFontSize(12);
+
+    sheetMonthlyInfosDB
+      .getRange(3, refinedColumn, 4, monthlyInfosHeaders.length)
+      .setFontWeight('bold')
+      .setHorizontalAlignment('left')
+      .setVerticalAlignment('middle');
   };
 
   const getMonthlyInfoRange = () => {
@@ -117,7 +146,7 @@ const useMonthlyInfosDB = () => {
     );
 
     if (action === 'paste') {
-      addColumns(column);
+      addColumns(refinedYear, refinedMonth, column);
     }
 
     // const monthlyInfoRange = getMonthlyInfoRange();

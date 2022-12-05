@@ -17,7 +17,8 @@ const useHelpers = () => {
         .getRange(row, col)
         .getValue()} -> ${data}`
     );
-    // sheet.getRange(row, col).setValue(data);
+
+    return sheet.getRange(row, col).setValue(data);
   };
 
   return { getValueWithPosition, findPositionWithText, writeData };
