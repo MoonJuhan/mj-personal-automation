@@ -55,7 +55,7 @@ const useMonthlyInfosDB = () => {
     }
   };
 
-  const addColumns = (year, month, column) => {
+  const addHeaderColumns = (year, month, column) => {
     const lastColumn = sheetMonthlyInfosDB.getLastColumn();
     sheetMonthlyInfosDB.insertColumnsAfter(lastColumn + 1, 13);
 
@@ -124,12 +124,34 @@ const useMonthlyInfosDB = () => {
   const writeMonthlyInfo = (action, column, monthlyInfoRange) => {
     const refinedColumn = action === 'overwrite' ? column : column + 13;
 
-    console.log(8, refinedColumn);
-    console.log(monthlyInfoRange);
+    const rangeLastRow = monthlyInfoRange.getLastRow();
 
-    // monthlyInfoRange.copyTo(
-    //   sheetMonthlyInfosDB.getRange(8, refinedColumn, lastRow, 12)
-    // );
+    const targetRange = sheetMonthlyInfosDB.getRange(
+      7,
+      refinedColumn,
+      rangeLastRow,
+      13
+    );
+
+    monthlyInfoRange.copyTo(targetRange, { contentsOnly: true });
+
+    const monthlyInfoFormats = new Array(rangeLastRow).fill([
+      'm월 dd일',
+      '₩0,000',
+      '',
+      '₩0,000',
+      '',
+      '',
+      '',
+      'm월 dd일',
+      '₩0,000',
+      '',
+      '',
+      '',
+      '',
+    ]);
+
+    targetRange.setFontSize(8).setNumberFormats(monthlyInfoFormats);
   };
 
   const deleteMonthlyInfo = (range) => {
@@ -146,12 +168,12 @@ const useMonthlyInfosDB = () => {
     );
 
     if (action === 'paste') {
-      addColumns(refinedYear, refinedMonth, column);
+      addHeaderColumns(refinedYear, refinedMonth, column);
     }
 
-    // const monthlyInfoRange = getMonthlyInfoRange();
-    // writeMonthlyInfo(action, column, monthlyInfoRange);
-    // deleteMonthlyInfo(monthlyInfoRange);
+    const monthlyInfoRange = getMonthlyInfoRange();
+    writeMonthlyInfo(action, column, monthlyInfoRange);
+    deleteMonthlyInfo(monthlyInfoRange);
   };
 
   return {
