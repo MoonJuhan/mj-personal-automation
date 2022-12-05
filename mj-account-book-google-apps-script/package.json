@@ -1,0 +1,17 @@
+{
+  "name": "mj-account-book-google-apps-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MoonJuhan",
+  "license": "ISC",
+  "prettier": {
+    "singleQuote": true,
+    "semi": false,
+    "trailingComma": "es5",
+    "printWidth": 200
+  }
+}
