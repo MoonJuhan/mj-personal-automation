@@ -108,6 +108,23 @@ const useMonthlyInfosDB = () => {
       .setVerticalAlignment('middle');
   };
 
+  const groupColumns = (column) => {
+    const refinedColumn = column + 14;
+
+    const firstGroupWidth = 6;
+    const secondGroupWidth = 4;
+
+    sheetMonthlyInfosDB
+      .getRange(1, refinedColumn, 1, firstGroupWidth)
+      .shiftColumnGroupDepth(1)
+      .collapseGroups();
+
+    sheetMonthlyInfosDB
+      .getRange(1, refinedColumn + firstGroupWidth + 1, 1, secondGroupWidth)
+      .shiftColumnGroupDepth(1)
+      .collapseGroups();
+  };
+
   const getMonthlyInfoRange = () => {
     const { pinRow, pinColumn } = findPositionWithText(
       sheetMonthlyInfo,
@@ -169,6 +186,7 @@ const useMonthlyInfosDB = () => {
 
     if (action === 'paste') {
       addHeaderColumns(refinedYear, refinedMonth, column);
+      groupColumns(column);
     }
 
     const monthlyInfoRange = getMonthlyInfoRange();
