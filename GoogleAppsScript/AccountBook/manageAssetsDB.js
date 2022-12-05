@@ -1,4 +1,4 @@
-const sheetYearlyDB = GSS.getSheetByName('연간 자산 데이터베이스');
+const sheetYearlyDB = GSS.getSheetByName('연간 자산 DB');
 
 const useManageAssetsDB = () => {
   const { getValueWithPosition, findPositionWithText, writeData } =
