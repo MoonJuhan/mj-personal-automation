@@ -1,4 +1,4 @@
-# mj-account-book-google-apps-script
+# mj-google-apps-script
 
 > Google Spreadsheet에서 사용되는 Google Apps Script를 모아놓은 폴더입니다.
 

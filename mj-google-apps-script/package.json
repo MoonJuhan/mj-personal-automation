@@ -1,5 +1,5 @@
 {
-  "name": "mj-account-book-google-apps-script",
+  "name": "mj-google-apps-script",
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
