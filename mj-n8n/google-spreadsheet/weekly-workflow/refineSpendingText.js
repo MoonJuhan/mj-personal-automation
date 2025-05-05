@@ -1,5 +1,8 @@
 const [monthlyTransactionsSpendingValues, monthlyTransactionsDBSpendingValues] =
-  $input.all().map((item) => item.json.valueRanges[0].values);
+  $input.all().map((item) => {
+    if (!item.json.valueRanges) return [];
+    return item.json.valueRanges[0].values;
+  });
 
 // 날짜 정보 추출 함수
 const getDateInfo = (date) => {
@@ -10,9 +13,8 @@ const getDateInfo = (date) => {
 
 const getRowDateInfo = (text) => {
   const [rowMonth, rowDay] = text
-    .trim()
     .split("월")
-    .map((item) => item.replace("일", ""));
+    .map((item) => item.replace("일", "").trim());
 
   return { rowMonth, rowDay };
 };
