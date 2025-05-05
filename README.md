@@ -5,6 +5,7 @@
 ## 목록
 
 - mj-n8n
+  - [README](./mj-n8n/README.md)
   - n8n을 사용해서 자동화 워크플로우를 구현합니다.
 - mj-google-apps-script (삭제됨)
   - Google SpreadSheet에 작성하고 있는 문서들을 자동화 해주는 Google Apps Script 프로젝트 입니다.
