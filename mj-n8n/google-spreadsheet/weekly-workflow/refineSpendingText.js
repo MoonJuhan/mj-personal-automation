@@ -21,11 +21,15 @@ const getRowDateInfo = (text) => {
 
 const getFilteredDatas = (data, [startMonth, startDay], [endMonth, endDay]) =>
   data.filter((row) => {
+    if (row[4].includes("이체")) return false;
+
     const { rowMonth, rowDay } = getRowDateInfo(row[0]);
 
     return (
-      (rowMonth === startMonth && Number(rowDay) >= Number(startDay)) ||
-      (rowMonth === endMonth && Number(rowDay) <= Number(endDay))
+      rowMonth === startMonth &&
+      Number(rowDay) >= Number(startDay) &&
+      rowMonth === endMonth &&
+      Number(rowDay) <= Number(endDay)
     );
   });
 
@@ -62,4 +66,6 @@ const spendingTexts = spendingDatas.map(
   }
 );
 
-return { spendingText: spendingTexts.join("\n") };
+return {
+  spendingText: spendingTexts.join("\n"),
+};
