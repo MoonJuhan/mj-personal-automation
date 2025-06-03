@@ -24,13 +24,25 @@ const getFilteredDatas = (data, [startMonth, startDay], [endMonth, endDay]) =>
     if (row[4].includes("이체")) return false;
 
     const { rowMonth, rowDay } = getRowDateInfo(row[0]);
+    const isSameMonth = rowMonth === startMonth && rowMonth === endMonth;
+    const isAfterStartDay = Number(rowDay) >= Number(startDay);
+    const isBeforeEndDay = Number(rowDay) <= Number(endDay);
 
-    return (
-      rowMonth === startMonth &&
-      Number(rowDay) >= Number(startDay) &&
-      rowMonth === endMonth &&
-      Number(rowDay) <= Number(endDay)
-    );
+    // 시작 월과 종료 월이 같은 경우
+    if (isSameMonth) {
+      return isAfterStartDay && isBeforeEndDay;
+    }
+
+    // 시작 월과 종료 월이 다른 경우
+    if (rowMonth === startMonth && rowMonth !== endMonth) {
+      return isAfterStartDay;
+    }
+
+    if (rowMonth !== startMonth && rowMonth === endMonth) {
+      return isBeforeEndDay;
+    }
+
+    return false;
   });
 
 // 현재 날짜 정보
@@ -62,7 +74,7 @@ const spendingTexts = spendingDatas.map(
   ([date, _, description, amount, category, paymentMethod]) => {
     const { rowMonth, rowDay } = getRowDateInfo(date);
     const rowYear = rowMonth === month ? year : weekStartYear;
-    return `${rowYear}-${rowMonth}-${rowDay} 내역:${description} 금액:${amount} 카테고리:${category} 결제수단:${paymentMethod}`;
+    return `${rowYear}-${rowMonth}-${rowDay} 내역:${description} 금액:${amount} 카테고리:${category}`;
   }
 );
 
